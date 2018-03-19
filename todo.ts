@@ -1,5 +1,12 @@
 /// <reference path="./typings/mithril/mithril.d.ts" />
 
+import * as admin from 'firebase-admin'
+import * as functions from 'firebase-functions'
+admin.initializeApp(functions.config().firebase);
+
+export const firestoreInstance = admin.firestore();
+
+
 interface MithrilProperty<T> {
     (value?: T): T
 }
@@ -40,10 +47,12 @@ module TodoApp {
   var STORAGE_ID = 'todos-mithril'
   var storage = {
     get: function () {
-      return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
+      // return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
+      return JSON.parse(firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get())  // ?? probably will not return syncly.
     },
     put: function (todos) {
-      localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
+      // localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
+      firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
     }
   }
 
