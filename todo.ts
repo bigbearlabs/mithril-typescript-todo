@@ -18,17 +18,32 @@ module TodoApp {
     list: Array<Todo>
     description: MithrilProperty<string>
     constructor() {
-      this.list = []
+      this.list = storage.get().map(function (itemObj) {
+        // debugger
+        return new Todo(itemObj.description)
+      })
+
       this.description = m.prop("")
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
       vm.list.push(new Todo(vm.description()))
+      storage.put(vm.list)
       vm.description("")
     }
     remove(i: number) {
       return () => { vm.list.splice(i, 1) }
+    }
+  }
+
+  var STORAGE_ID = 'todos-mithril'
+  var storage = {
+    get: function () {
+      return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
+    },
+    put: function (todos) {
+      localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
     }
   }
 
