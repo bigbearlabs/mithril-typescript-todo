@@ -25,12 +25,24 @@ module TodoApp {
     list: Array<Todo>
     description: MithrilProperty<string>
     constructor() {
-      this.list = storage.get().map(function (itemObj) {
-        // debugger
-        return new Todo(itemObj.description)
-      })
+      function update(fetchedData) {
+        this.list = fetchedData.map(function (itemObj) {
+          // debugger
+          return new Todo(itemObj.description)
+        })
 
-      this.description = m.prop("")
+        this.description = m.prop("")        
+      }
+
+      // var fetchedData = storage.get()
+      // update(fetchedData)
+
+      storage.get().then(
+        function(documentSnapshot) {
+          var fetchedData = JSON.parse(documentSnapshot.toString())
+          update(fetchedData)
+        }
+      )
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
@@ -48,7 +60,7 @@ module TodoApp {
   var storage = {
     get: function () {
       // return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
-      return JSON.parse(firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get())  // ?? probably will not return syncly.
+      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
     },
     put: function (todos) {
       // localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
