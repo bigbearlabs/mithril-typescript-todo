@@ -25,46 +25,41 @@ module TodoApp {
     list: Array<Todo>
     description: MithrilProperty<string>
     constructor() {
-      function update(fetchedData) {
-        this.list = fetchedData.map(function (itemObj) {
+      function updateTo(fetchedData) {
+        this.list = fetchedData.map( (itemObj) => {
           // debugger
           return new Todo(itemObj.description)
         })
 
-        this.description = m.prop("")        
+        this.description = m.prop("")  // STUB
       }
 
-      // var fetchedData = storage.get()
-      // update(fetchedData)
-
-      storage.get().then(
-        function(documentSnapshot) {
-          var fetchedData = JSON.parse(documentSnapshot.toString())
-          update(fetchedData)
-        }
-      )
+      storage.get().then( (documentSnapshot) => {
+        const fetchedData = JSON.parse(documentSnapshot.toString())
+        updateTo(fetchedData)
+      })
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
       vm.list.push(new Todo(vm.description()))
       storage.put(vm.list)
-      vm.description("")
+      vm.description("")  // ?
     }
     remove(i: number) {
       return () => { vm.list.splice(i, 1) }
     }
   }
 
-  var STORAGE_ID = 'todos-mithril'
-  var storage = {
+  const STORAGE_ID = 'todos-mithril'
+  const storage = {
     get: function () {
       // return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
       return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
     },
     put: function (todos) {
       // localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
-      firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
+      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
     }
   }
 
