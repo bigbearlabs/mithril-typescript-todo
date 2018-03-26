@@ -9,9 +9,4 @@
       "commit": "b0056383b51495b373a32b791de8112fcafe2ace"
     }
   },
-  {
-    "compilerOptions": {
-      "module": "none"
-    }
-  }
 }

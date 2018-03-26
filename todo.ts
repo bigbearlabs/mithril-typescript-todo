@@ -1,11 +1,18 @@
 /// <reference path="./typings/mithril/mithril.d.ts" />
 
-import * as admin from 'firebase-admin'
-import * as functions from 'firebase-functions'
-admin.initializeApp(functions.config().firebase);
 
-export const firestoreInstance = admin.firestore();
+// NOTE compile with browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js
 
+
+import * as firestore from '@google-cloud/firestore'
+ 
+// FIXME results in a throw due to an undefined object --
+// configure properly and re-test.
+const firestoreInstance = new firestore.Firestore({
+  projectId: 'YOUR_PROJECT_ID',
+  keyFilename: '/path/to/keyfile.json',
+});
+ 
 
 interface MithrilProperty<T> {
     (value?: T): T
@@ -25,7 +32,7 @@ module TodoApp {
     list: Array<Todo>
     description: MithrilProperty<string>
     constructor() {
-      function updateTo(fetchedData) {
+      function updateTo(fetchedData: [any]) {
         this.list = fetchedData.map( (itemObj) => {
           // debugger
           return new Todo(itemObj.description)
@@ -34,7 +41,7 @@ module TodoApp {
         this.description = m.prop("")  // STUB
       }
 
-      storage.get().then( (documentSnapshot) => {
+      storage.get().then( (documentSnapshot: any) => {
         const fetchedData = JSON.parse(documentSnapshot.toString())
         updateTo(fetchedData)
       })
@@ -57,7 +64,7 @@ module TodoApp {
       // return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
       return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
     },
-    put: function (todos) {
+    put: function (todos: Todo[]) {
       // localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
       return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
     }
