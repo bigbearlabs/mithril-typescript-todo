@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "@google-cloud/firestore": "^0.13.0"
-	"mithril": "~0.1.34",
-	"bootstrap": "~3.3.4"
+    "bootstrap": "~3.3.4",
+    "firebase": "^4.12.0",
+    "mithril": "~0.1.34"
   },
   "devDependencies": {
     "browserify": "^16.1.1",

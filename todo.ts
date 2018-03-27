@@ -3,24 +3,32 @@
 
 // NOTE 
 // setup:
-// ```
-// npm install
-// tsd install
-// ```
+//   ```
+//   npm install
+//   tsd install
+//   ```
 // 
 // compile:
-//  `browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js`
+//   `browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js`
 
 
-import * as firestore from '@google-cloud/firestore'
- 
-// FIXME results in a throw due to an undefined object --
-// configure properly and re-test.
-const firestoreInstance = new firestore.Firestore({
-  projectId: 'YOUR_PROJECT_ID',
-  keyFilename: '/path/to/keyfile.json',
-});
- 
+// import * as firestore from '@google-cloud/firestore'
+
+import firebase = require("firebase")
+import 'firebase/firestore'
+import * as m from 'mithril'
+
+var config = {
+  apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
+  authDomain: "sample-9dfce.firebaseapp.com",
+  databaseURL: "https://sample-9dfce.firebaseio.com",
+  projectId: "sample-9dfce",
+  storageBucket: "sample-9dfce.appspot.com",
+  messagingSenderId: "473506143209"
+};
+firebase.initializeApp(config)
+
+const firestoreInstance = firebase.firestore()
 
 interface MithrilProperty<T> {
     (value?: T): T
@@ -40,6 +48,9 @@ module TodoApp {
     list: Array<Todo>
     description: MithrilProperty<string>
     constructor() {
+      this.list = []
+      this.description = m.prop("")
+
       function updateTo(fetchedData: [any]) {
         this.list = fetchedData.map( (itemObj) => {
           // debugger
