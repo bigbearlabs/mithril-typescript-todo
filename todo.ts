@@ -1,7 +1,15 @@
 /// <reference path="./typings/mithril/mithril.d.ts" />
 
 
-// NOTE compile with `browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js`
+// NOTE 
+// setup:
+// ```
+// npm install
+// tsd install
+// ```
+// 
+// compile:
+//  `browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js`
 
 
 import * as firestore from '@google-cloud/firestore'
