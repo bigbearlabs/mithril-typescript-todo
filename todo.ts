@@ -9,33 +9,24 @@
 //   ```
 // 
 // compile:
-//   `browserify todo.ts -p [ tsify --noImplicitAny ] -d > bundle.js`
+//   `browserify todo.ts -p [ tsify   ] -d > bundle.js`
 
 
-// import * as firestore from '@google-cloud/firestore'
-
-import firebase = require("firebase")
-import 'firebase/firestore'
+// UNFINISHED couldn't configure properly.
+// import firebase = require("firebase")
+// import 'firebase/firestore'
 import * as m from 'mithril'
 
-var config = {
-  apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
-  authDomain: "sample-9dfce.firebaseapp.com",
-  databaseURL: "https://sample-9dfce.firebaseio.com",
-  projectId: "sample-9dfce",
-  storageBucket: "sample-9dfce.appspot.com",
-  messagingSenderId: "473506143209"
-};
-firebase.initializeApp(config)
-
-const firestoreInstance = firebase.firestore()
 
 interface MithrilProperty<T> {
     (value?: T): T
 }
 
+
 module TodoApp {
+
   var vm: ViewModel
+
   class Todo {
     description: MithrilProperty<string>
     done: MithrilProperty<boolean>
@@ -44,6 +35,7 @@ module TodoApp {
       this.done = m.prop(false)
     }
   }
+
   class ViewModel {
     list: Array<Todo>
     description: MithrilProperty<string>
@@ -51,7 +43,7 @@ module TodoApp {
       this.list = []
       this.description = m.prop("")
 
-      function updateTo(fetchedData: [any]) {
+      const updateTo = (fetchedData: [any]) => {
         this.list = fetchedData.map( (itemObj) => {
           // debugger
           return new Todo(itemObj.description)
@@ -60,8 +52,8 @@ module TodoApp {
         this.description = m.prop("")  // STUB
       }
 
-      storage.get().then( (documentSnapshot: any) => {
-        const fetchedData = JSON.parse(documentSnapshot.toString())
+      storage.get().then( (fetchedData) => {
+        // const fetchedData = JSON.parse(documentSnapshot.toString())  // firestore
         updateTo(fetchedData)
       })
     }
@@ -74,18 +66,6 @@ module TodoApp {
     }
     remove(i: number) {
       return () => { vm.list.splice(i, 1) }
-    }
-  }
-
-  const STORAGE_ID = 'todos-mithril'
-  const storage = {
-    get: function () {
-      // return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]')
-      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
-    },
-    put: function (todos: Todo[]) {
-      // localStorage.setItem(STORAGE_ID, JSON.stringify(todos))
-      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
     }
   }
 
@@ -121,6 +101,43 @@ module TodoApp {
       ])
     ]);
   }
+
+
+  const STORAGE_ID = 'todos-mithril'
+
+  // firebase-based persistence.
+  var config = {
+    apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
+    authDomain: "sample-9dfce.firebaseapp.com",
+    databaseURL: "https://sample-9dfce.firebaseio.com",
+    projectId: "sample-9dfce",
+    storageBucket: "sample-9dfce.appspot.com",
+    messagingSenderId: "473506143209"
+  }
+  // UNFINISHED couldn't configure properly.
+  // const firestoreInstance = firebase.firestore()
+  // firebase.initializeApp(config)
+  // const storage_firebase = {
+  //   get: function () {
+  //     return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
+  //   },
+  //   put: function (todos: Todo[]) {
+  //     return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
+  //   }
+  // }
+
+  const storage = 
+    // storage_firebase  // UNFINISHED
+  {
+    get: function () {
+      return Promise.resolve(JSON.parse(localStorage.getItem(STORAGE_ID) || '[]'))
+    },
+    put: function (todos: Todo[]) {
+      return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(todos)))
+    }
+  }
+
+
 }
 
 //initialize the application
