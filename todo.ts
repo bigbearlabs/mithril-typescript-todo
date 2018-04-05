@@ -13,11 +13,37 @@
 
 
 // UNFINISHED couldn't configure properly.
-// import firebase = require("firebase")
-// import 'firebase/firestore'
+import firebase = require("firebase")
+import 'firebase/firestore'
 
 import * as m from 'mithril'
 
+
+const STORAGE_ID = 'todos-mithril'
+
+// firebase-based persistence.
+var config = {
+  apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
+  authDomain: "sample-9dfce.firebaseapp.com",
+  databaseURL: "https://sample-9dfce.firebaseio.com",
+  projectId: "sample-9dfce",
+  storageBucket: "sample-9dfce.appspot.com",
+  messagingSenderId: "473506143209"
+}
+// UNFINISHED couldn't configure properly.
+
+const storage_firebase = {
+  get: function () {
+    return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
+  },
+  put: function (todos: Todo[]) {
+    return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
+  }
+}
+
+
+const firestoreInstance = firebase.firestore()
+firebase.initializeApp(config)
 
 interface MithrilProperty<T> {
     (value?: T): T
@@ -53,9 +79,10 @@ module TodoApp {
         this.description = m.prop("")  // STUB
       }
 
-      storage.get().then( (fetchedData) => {
+      storage.get().then( (documentSnapshot) => {
         // const fetchedData = JSON.parse(documentSnapshot.toString())  // firestore
-        updateTo(fetchedData)
+        const data = JSON.parse(documentSnapshot.toString()) 
+        updateTo(data)
       })
     }
     add() {
@@ -104,39 +131,16 @@ module TodoApp {
   }
 
 
-  const STORAGE_ID = 'todos-mithril'
-
-  // firebase-based persistence.
-  var config = {
-    apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
-    authDomain: "sample-9dfce.firebaseapp.com",
-    databaseURL: "https://sample-9dfce.firebaseio.com",
-    projectId: "sample-9dfce",
-    storageBucket: "sample-9dfce.appspot.com",
-    messagingSenderId: "473506143209"
-  }
-  // UNFINISHED couldn't configure properly.
-  // const firestoreInstance = firebase.firestore()
-  // firebase.initializeApp(config)
-  // const storage_firebase = {
+  const storage = 
+    storage_firebase  // UNFINISHED
+  // {
   //   get: function () {
-  //     return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
+  //     return Promise.resolve(JSON.parse(localStorage.getItem(STORAGE_ID) || '[]'))
   //   },
   //   put: function (todos: Todo[]) {
-  //     return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
+  //     return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(todos)))
   //   }
   // }
-
-  const storage = 
-    // storage_firebase  // UNFINISHED
-  {
-    get: function () {
-      return Promise.resolve(JSON.parse(localStorage.getItem(STORAGE_ID) || '[]'))
-    },
-    put: function (todos: Todo[]) {
-      return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(todos)))
-    }
-  }
 
 
 }
