@@ -32,18 +32,11 @@ var config = {
 }
 // UNFINISHED couldn't configure properly.
 
-const storage_firebase = {
-  get: function () {
-    return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
-  },
-  put: function (todos: Todo[]) {
-    return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
-  }
-}
-
 
 const firestoreInstance = firebase.firestore()
 firebase.initializeApp(config)
+
+
 
 interface MithrilProperty<T> {
     (value?: T): T
@@ -60,6 +53,15 @@ module TodoApp {
     constructor(description: string) {
       this.description = m.prop(description)
       this.done = m.prop(false)
+    }
+  }
+
+  const storage_firebase = {
+    get: function () {
+      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").get()
+    },
+    put: function (todos: Todo[]) {
+      return firestoreInstance.collection(STORAGE_ID).doc("singleton_list").set(todos)
     }
   }
 
