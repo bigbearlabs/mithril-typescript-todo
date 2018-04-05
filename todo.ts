@@ -8,13 +8,14 @@
 //   tsd install
 //   ```
 // 
-// compile:
-//   `browserify todo.ts -p [ tsify   ] -d > bundle.js`
+// enter devmode:
+//    `npm run dev &; python -m SimpleHTTPServer`
 
 
 // UNFINISHED couldn't configure properly.
 // import firebase = require("firebase")
 // import 'firebase/firestore'
+
 import * as m from 'mithril'
 
 
