@@ -44,19 +44,19 @@ module TodoApp {
       this.list = []
       this.description = m.prop("")
 
-      const updateTo = (fetchedData: [any]) => {
-        this.list = fetchedData.map( (itemObj) => {
-          // debugger
-          return new Todo(itemObj.description)
-        })
+      // const updateTo = (fetchedData: [any]) => {
+      //   this.list = fetchedData.map( (itemObj) => {
+      //     // debugger
+      //     return new Todo(itemObj.description)
+      //   })
 
-        this.description = m.prop("")  // STUB
-      }
+      //   this.description = m.prop("")  // STUB
+      // }
 
-      storage.get().then( (fetchedData) => {
-        // const fetchedData = JSON.parse(documentSnapshot.toString())  // firestore
-        updateTo(fetchedData)
-      })
+      // storage.get().then( (fetchedData) => {
+      //   // const fetchedData = JSON.parse(documentSnapshot.toString())  // firestore
+      //   updateTo(fetchedData)
+      // })
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
