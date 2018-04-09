@@ -24,6 +24,7 @@ interface MithrilProperty<T> {
 }
 
 
+// TodoCollection
 module TodoApp {
 
   var vm: ViewModel
@@ -38,14 +39,16 @@ module TodoApp {
   }
 
   class ViewModel {
-    list: Array<Todo>
+    listId: String
+    todos: Array<Todo>
     description: MithrilProperty<string>
-    constructor() {
-      this.list = []
+    constructor(listId: String) {
+      this.listId = listId
+      this.todos = []
       this.description = m.prop("")
 
       // const updateTo = (fetchedData: [any]) => {
-      //   this.list = fetchedData.map( (itemObj) => {
+      //   this.todos = fetchedData.map( (itemObj) => {
       //     // debugger
       //     return new Todo(itemObj.description)
       //   })
@@ -61,22 +64,22 @@ module TodoApp {
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
-      vm.list.push(new Todo(vm.description()))
-      storage.put(vm.list)
+      vm.todos.push(new Todo(vm.description()))
+      storage.put(vm.todos)
       vm.description("")  // ?
     }
     remove(i: number) {
-      return () => { vm.list.splice(i, 1) }
+      return () => { vm.todos.splice(i, 1) }
     }
   }
 
   export function controller() {
-    vm = new ViewModel()
+    const listId = (new URL(document.location.href)).searchParams.get("id")
+    vm = new ViewModel(listId)
   }
   export function view() {
-    return m("body", [
-      m("div.container", [
-        m("span", "Todo Items For List X"),
+      return m("div.container", [
+        m("span", "Todo Items For List " + vm.listId),
         m("div.row", [
           m("div.col-md-6.col-md-offset-3", [
             m("div.input-group", [
@@ -86,7 +89,7 @@ module TodoApp {
               ])
             ]),
             m("ul.list-group", [
-              vm.list.map((task, index) => {
+              vm.todos.map((task, index) => {
                 return m("li.list-group-item.row", [
                   m("div.col-xs-3.col-sm-3", [
                     m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
@@ -101,7 +104,6 @@ module TodoApp {
           ])
         ])
       ])
-    ]);
   }
 
 
@@ -144,17 +146,15 @@ module TodoApp {
 
 
 
-
+// ListCollection
 module ListsApp {
 
   var vm: ViewModel
 
   class Todo {
     description: MithrilProperty<string>
-    done: MithrilProperty<boolean>
     constructor(description: string) {
       this.description = m.prop(description)
-      this.done = m.prop(false)
     }
   }
 
@@ -170,7 +170,7 @@ module ListsApp {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
       vm.list.push(new Todo(vm.description()))
-      storage.put(vm.list)
+      // storage.put(vm.list)
       vm.description("")  // ?
     }
     remove(i: number) {
@@ -182,8 +182,7 @@ module ListsApp {
     vm = new ViewModel()
   }
   export function view() {
-    return m("body", [
-      m("div.container", [
+      return m("div.container", [
         m("span", "Todo Lists"),
         m("div.row", [
           m("div.col-md-6.col-md-offset-3", [
@@ -196,11 +195,8 @@ module ListsApp {
             m("ul.list-group", [
               vm.list.map((task, index) => {
                 return m("li.list-group-item.row", [
-                  // m("div.col-xs-3.col-sm-3", [
-                  //   m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
-                  // ]),
                   m("div.col-xs-6.col-sm-6", [
-                    m("a", {style: {textDecoration: task.done() ? "line-through" : "none"}, href: "todo.html?id=x"}, task.description()),
+                    m("a", {style: {}, href: "/#!/todo?id=" + task.description()}, task.description()),
                   ]),                  
                   m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
                 ])
@@ -209,7 +205,6 @@ module ListsApp {
           ])
         ])
       ])
-    ]);
   }
 
 }
@@ -217,8 +212,13 @@ module ListsApp {
 
 
 //initialize the application
-if (document.location.href.indexOf("todo") > -1) {
-  m.module(document.body, TodoApp)  
-} else if (document.location.href.indexOf("lists") > -1) {
-  m.module(document.body, ListsApp)
-}
+// if (document.location.href.indexOf("todo") > -1) {
+//   m.module(document.body, TodoApp)  
+// } else if (document.location.href.indexOf("lists") > -1) {
+//   m.module(document.body, ListsApp)
+// }
+
+m.route(document.body, "/", {
+    "/": ListsApp,
+    "/todo": TodoApp,
+});
