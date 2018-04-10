@@ -17,7 +17,7 @@
 // import 'firebase/firestore'
 
 import * as m from 'mithril'
-
+import * as prop from 'mithril/stream'
 
 interface MithrilProperty<T> {
     (value?: T): T
@@ -33,8 +33,8 @@ module TodoApp {
     description: MithrilProperty<string>
     done: MithrilProperty<boolean>
     constructor(description: string) {
-      this.description = m.prop(description)
-      this.done = m.prop(false)
+      this.description = prop(description)
+      this.done = prop(false)
     }
   }
 
@@ -45,7 +45,7 @@ module TodoApp {
     constructor(listId: String) {
       this.listId = listId
       this.todos = []
-      this.description = m.prop("")
+      this.description = prop("")
 
       // const updateTo = (fetchedData: [any]) => {
       //   this.todos = fetchedData.map( (itemObj) => {
@@ -53,7 +53,7 @@ module TodoApp {
       //     return new Todo(itemObj.description)
       //   })
 
-      //   this.description = m.prop("")  // STUB
+      //   this.description = prop("")  // STUB
       // }
 
       // storage.get().then( (fetchedData) => {
@@ -73,7 +73,7 @@ module TodoApp {
     }
   }
 
-  export function controller() {
+  export function oninit() {
     const listId = (new URL(document.location.href)).searchParams.get("id")
     vm = new ViewModel(listId)
   }
@@ -154,7 +154,7 @@ module ListsApp {
   class Todo {
     description: MithrilProperty<string>
     constructor(description: string) {
-      this.description = m.prop(description)
+      this.description = prop(description)
     }
   }
 
@@ -163,7 +163,7 @@ module ListsApp {
     description: MithrilProperty<string>
     constructor() {
       this.list = []
-      this.description = m.prop("")
+      this.description = prop("")
 
     }
     add() {
@@ -178,7 +178,7 @@ module ListsApp {
     }
   }
 
-  export function controller() {
+  export function oninit() {
     vm = new ViewModel()
   }
   export function view() {
