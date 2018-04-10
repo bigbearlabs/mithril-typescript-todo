@@ -22,10 +22,9 @@ interface MithrilProperty<T> {
     (value?: T): T
 }
 
+namespace TodoCollection {
 
-module TodoCollection {
-
-  var vm: ViewModel
+  let vm: ViewModel
 
   class Todo {
     description: MithrilProperty<string>
@@ -37,10 +36,10 @@ module TodoCollection {
   }
 
   class ViewModel {
-    listId: String
+    listId: string
     todos: Array<Todo>
     description: MithrilProperty<string>
-    constructor(listId: String) {
+    constructor(listId: string) {
       this.listId = listId
       this.todos = []
       this.description = prop("")
@@ -97,7 +96,7 @@ module TodoCollection {
                   ]),
                   m("div.col-xs-6.col-sm-6", [
                     m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
-                  ]),              
+                  ]),
                   m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
                 ])
               })
@@ -113,7 +112,7 @@ module TodoCollection {
   const STORAGE_ID = 'todos-mithril'
 
   // firebase-based persistence.
-  var config = {
+  let config = {
     apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
     authDomain: "sample-9dfce.firebaseapp.com",
     databaseURL: "https://sample-9dfce.firebaseio.com",
@@ -133,25 +132,23 @@ module TodoCollection {
   //   }
   // }
 
-  const storage = 
-    // storage_firebase  // UNFINISHED
-  {
-    get: function () {
+  // const storage = storage_firebase  // UNFINISHED
+  const storage = {
+    get() {
       return Promise.resolve(JSON.parse(localStorage.getItem(STORAGE_ID) || '[]'))
     },
-    put: function (todos: Todo[]) {
+    put(todos: Todo[]) {
       return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(todos)))
     }
   }
-
 
 }
 
 
 
-module ListCollection {
+namespace ListCollection {
 
-  var vm: ViewModel
+  let vm: ViewModel
 
   class List {
     description: MithrilProperty<string>
@@ -200,12 +197,12 @@ module ListCollection {
                 return m("li.list-group-item.row", [
                   m("div.col-xs-6.col-sm-6", [
                     m("a", {
-                        style: {}, 
-                        href: "/todo/" + task.description(), 
+                        style: {},
+                        href: "/todo/" + task.description(),
                         oncreate: m.route.link
-                      }, 
+                      },
                       task.description()),
-                  ]),                  
+                  ]),
                   m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
                 ])
               })
