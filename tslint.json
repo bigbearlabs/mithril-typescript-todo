@@ -41,7 +41,10 @@
       }
     ],
 
-    "no-namespace": [false, "allow-declarations"]
+    "no-namespace": [false, "allow-declarations"],
+
+    "member-access": false
+    
   },
   "jsRules": {
     "max-line-length": {

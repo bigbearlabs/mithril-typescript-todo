@@ -18,9 +18,8 @@ import * as prop from 'mithril/stream'
 
 import {Component} from 'mithril'
 
-interface MithrilProperty<T> {
-    (value?: T): T
-}
+type MithrilProperty<T> = (value?: T) => T
+
 
 namespace TodoCollection {
 
@@ -37,7 +36,7 @@ namespace TodoCollection {
 
   class ViewModel {
     listId: string
-    todos: Array<Todo>
+    todos: Todo[]
     description: MithrilProperty<string>
     constructor(listId: string) {
       this.listId = listId
@@ -60,7 +59,7 @@ namespace TodoCollection {
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
-      if (!vm.description()) return
+      if (!vm.description()) { return }
       vm.todos.push(new Todo(vm.description()))
       storage.put(vm.todos)
       vm.description("")  // ?
@@ -112,7 +111,7 @@ namespace TodoCollection {
   const STORAGE_ID = 'todos-mithril'
 
   // firebase-based persistence.
-  let config = {
+  const config = {
     apiKey: "AIzaSyDqSBRoeSqBcom-hjgt338Gu7Egkak1mXY",
     authDomain: "sample-9dfce.firebaseapp.com",
     databaseURL: "https://sample-9dfce.firebaseio.com",
@@ -158,7 +157,7 @@ namespace ListCollection {
   }
 
   class ViewModel {
-    list: Array<List>
+    list: List[]
     description: MithrilProperty<string>
     constructor() {
       this.list = []
@@ -167,7 +166,7 @@ namespace ListCollection {
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
-      if (!vm.description()) return
+      if (!vm.description()) { return }
       vm.list.push(new List(vm.description()))
       // storage.put(vm.list)
       vm.description("")  // ?
