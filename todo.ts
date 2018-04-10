@@ -1,12 +1,12 @@
-// NOTE 
+// NOTE
 // setup:
 //   ```
 //   npm install
-//   tsd install
 //   ```
-// 
+//
 // enter devmode:
-//    `npm run dev &; python -m SimpleHTTPServer`
+//    `npm run dev`
+
 
 
 // UNFINISHED couldn't configure properly.
