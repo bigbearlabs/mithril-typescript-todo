@@ -17,14 +17,14 @@
 // import 'firebase/firestore'
 
 import * as m from 'mithril'
-
+import * as prop from 'mithril/stream'
 
 interface MithrilProperty<T> {
     (value?: T): T
 }
 
 
-module TodoApp {
+module TodoCollection {
 
   var vm: ViewModel
 
@@ -32,25 +32,27 @@ module TodoApp {
     description: MithrilProperty<string>
     done: MithrilProperty<boolean>
     constructor(description: string) {
-      this.description = m.prop(description)
-      this.done = m.prop(false)
+      this.description = prop(description)
+      this.done = prop(false)
     }
   }
 
   class ViewModel {
-    list: Array<Todo>
+    listId: String
+    todos: Array<Todo>
     description: MithrilProperty<string>
-    constructor() {
-      this.list = []
-      this.description = m.prop("")
+    constructor(listId: String) {
+      this.listId = listId
+      this.todos = []
+      this.description = prop("")
 
       // const updateTo = (fetchedData: [any]) => {
-      //   this.list = fetchedData.map( (itemObj) => {
+      //   this.todos = fetchedData.map( (itemObj) => {
       //     // debugger
       //     return new Todo(itemObj.description)
       //   })
 
-      //   this.description = m.prop("")  // STUB
+      //   this.description = prop("")  // STUB
       // }
 
       // storage.get().then( (fetchedData) => {
@@ -61,46 +63,46 @@ module TodoApp {
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
-      vm.list.push(new Todo(vm.description()))
-      storage.put(vm.list)
+      vm.todos.push(new Todo(vm.description()))
+      storage.put(vm.todos)
       vm.description("")  // ?
     }
     remove(i: number) {
-      return () => { vm.list.splice(i, 1) }
+      return () => { vm.todos.splice(i, 1) }
     }
   }
 
-  export function controller() {
-    vm = new ViewModel()
+  export function oninit() {
+    const listId = (new URL(document.location.href)).searchParams.get("id")
+    vm = new ViewModel(listId)
   }
-  export function view() {
-    return m("body", [
-      m("div.container", [
-        m("div.row", [
-          m("div.col-md-6.col-md-offset-3", [
-            m("div.input-group", [
-              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
-              m("span.input-group-btn", [
-                m("button.btn.btn-primary", {onclick: vm.add}, "Add")
-              ])
-            ]),
-            m("ul.list-group", [
-              vm.list.map((task, index) => {
-                return m("li.list-group-item.row", [
-                  m("div.col-xs-3.col-sm-3", [
-                    m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
-                  ]),
-                  m("div.col-xs-6.col-sm-6", [
-                    m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
-                  ]),                  
-                  m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
-                ])
-              })
+  export function view(vnode) {
+    return m("div.container", [
+      m("span", "List " + vnode.attrs.id),
+      m("div.row", [
+        m("div.col-md-6.col-md-offset-3", [
+          m("div.input-group", [
+            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+            m("span.input-group-btn", [
+              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
             ])
+          ]),
+          m("ul.list-group", [
+            vm.todos.map((task, index) => {
+              return m("li.list-group-item.row", [
+                m("div.col-xs-3.col-sm-3", [
+                  m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
+                ]),
+                m("div.col-xs-6.col-sm-6", [
+                  m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
+                ]),                  
+                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+              ])
+            })
           ])
         ])
       ])
-    ]);
+    ])
   }
 
 
@@ -141,5 +143,85 @@ module TodoApp {
 
 }
 
+
+
+module ListCollection {
+
+  var vm: ViewModel
+
+  class List {
+    description: MithrilProperty<string>
+    constructor(description: string) {
+      this.description = prop(description)
+    }
+  }
+
+  class ViewModel {
+    list: Array<List>
+    description: MithrilProperty<string>
+    constructor() {
+      this.list = []
+      this.description = prop("")
+
+    }
+    add() {
+      // This is an unfortunate thing, but we have to use vm instead of this
+      if (!vm.description()) return
+      vm.list.push(new List(vm.description()))
+      // storage.put(vm.list)
+      vm.description("")  // ?
+    }
+    remove(i: number) {
+      return () => { vm.list.splice(i, 1) }
+    }
+  }
+
+  export function oninit() {
+    vm = new ViewModel()
+  }
+  export function view() {
+    return m("div.container", [
+      m("span", "Todo Lists"),
+      m("div.row", [
+        m("div.col-md-6.col-md-offset-3", [
+          m("div.input-group", [
+            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+            m("span.input-group-btn", [
+              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
+            ])
+          ]),
+          m("ul.list-group", [
+            vm.list.map((task, index) => {
+              return m("li.list-group-item.row", [
+                m("div.col-xs-6.col-sm-6", [
+                  m("a", {
+                      style: {}, 
+                      href: "/todo/" + task.description(), 
+                      oncreate: m.route.link
+                    }, 
+                    task.description()),
+                ]),                  
+                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+              ])
+            })
+          ])
+        ])
+      ])
+    ])
+  }
+
+}
+
+
+
 //initialize the application
-m.module(document.body, TodoApp)
+// if (document.location.href.indexOf("todo") > -1) {
+//   m.module(document.body, TodoCollection)  
+// } else if (document.location.href.indexOf("lists") > -1) {
+//   m.module(document.body, ListCollection)
+// }
+
+m.route(document.body, "/todo", {
+    "/todo": ListCollection,
+    "/todo/:id": TodoCollection,
+});
