@@ -211,13 +211,6 @@ module ListCollection {
 
 
 
-//initialize the application
-// if (document.location.href.indexOf("todo") > -1) {
-//   m.module(document.body, TodoCollection)  
-// } else if (document.location.href.indexOf("lists") > -1) {
-//   m.module(document.body, ListCollection)
-// }
-
 m.route(document.body, "/todo", {
     "/todo": ListCollection,
     "/todo/:id": TodoCollection,
