@@ -16,6 +16,8 @@
 import * as m from 'mithril'
 import * as prop from 'mithril/stream'
 
+import {Component} from 'mithril'
+
 interface MithrilProperty<T> {
     (value?: T): T
 }
@@ -69,37 +71,42 @@ module TodoCollection {
     }
   }
 
-  export function oninit() {
-    const listId = (new URL(document.location.href)).searchParams.get("id")
-    vm = new ViewModel(listId)
-  }
-  export function view(vnode) {
-    return m("div.container", [
-      m("span", "List " + vnode.attrs.id),
-      m("div.row", [
-        m("div.col-md-6.col-md-offset-3", [
-          m("div.input-group", [
-            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
-            m("span.input-group-btn", [
-              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
-            ])
-          ]),
-          m("ul.list-group", [
-            vm.todos.map((task, index) => {
-              return m("li.list-group-item.row", [
-                m("div.col-xs-3.col-sm-3", [
-                  m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
-                ]),
-                m("div.col-xs-6.col-sm-6", [
-                  m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
-                ]),                  
-                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+  export const component: Component<{id: string}, {}> = {
+
+    oninit(vnode) {
+      const listId = vnode.attrs.id
+      vm = new ViewModel(listId)
+    },
+
+    view(vnode) {
+      return m("div.container", [
+        m("span", "List " + vnode.attrs.id),
+        m("div.row", [
+          m("div.col-md-6.col-md-offset-3", [
+            m("div.input-group", [
+              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+              m("span.input-group-btn", [
+                m("button.btn.btn-primary", {onclick: vm.add}, "Add")
               ])
-            })
+            ]),
+            m("ul.list-group", [
+              vm.todos.map((task, index) => {
+                return m("li.list-group-item.row", [
+                  m("div.col-xs-3.col-sm-3", [
+                    m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
+                  ]),
+                  m("div.col-xs-6.col-sm-6", [
+                    m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
+                  ]),              
+                  m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+                ])
+              })
+            ])
           ])
         ])
       ])
-    ])
+    }
+
   }
 
 
@@ -173,38 +180,40 @@ module ListCollection {
     }
   }
 
-  export function oninit() {
-    vm = new ViewModel()
-  }
-  export function view() {
-    return m("div.container", [
-      m("span", "Todo Lists"),
-      m("div.row", [
-        m("div.col-md-6.col-md-offset-3", [
-          m("div.input-group", [
-            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
-            m("span.input-group-btn", [
-              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
-            ])
-          ]),
-          m("ul.list-group", [
-            vm.list.map((task, index) => {
-              return m("li.list-group-item.row", [
-                m("div.col-xs-6.col-sm-6", [
-                  m("a", {
-                      style: {}, 
-                      href: "/todo/" + task.description(), 
-                      oncreate: m.route.link
-                    }, 
-                    task.description()),
-                ]),                  
-                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+  export const component: Component<{id: string}, {}> = {
+    oninit() {
+      vm = new ViewModel()
+    },
+    view() {
+      return m("div.container", [
+        m("span", "Todo Lists"),
+        m("div.row", [
+          m("div.col-md-6.col-md-offset-3", [
+            m("div.input-group", [
+              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+              m("span.input-group-btn", [
+                m("button.btn.btn-primary", {onclick: vm.add}, "Add")
               ])
-            })
+            ]),
+            m("ul.list-group", [
+              vm.list.map((task, index) => {
+                return m("li.list-group-item.row", [
+                  m("div.col-xs-6.col-sm-6", [
+                    m("a", {
+                        style: {}, 
+                        href: "/todo/" + task.description(), 
+                        oncreate: m.route.link
+                      }, 
+                      task.description()),
+                  ]),                  
+                  m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+                ])
+              })
+            ])
           ])
         ])
       ])
-    ])
+    }
   }
 
 }
@@ -212,6 +221,6 @@ module ListCollection {
 
 
 m.route(document.body, "/todo", {
-    "/todo": ListCollection,
-    "/todo/:id": TodoCollection,
-});
+    "/todo": ListCollection.component,
+    "/todo/:id": TodoCollection.component,
+})
