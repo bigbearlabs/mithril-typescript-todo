@@ -1,6 +1,3 @@
-/// <reference path="./typings/mithril/mithril.d.ts" />
-
-
 // NOTE 
 // setup:
 //   ```
