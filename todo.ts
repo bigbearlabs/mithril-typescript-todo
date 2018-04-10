@@ -196,7 +196,12 @@ module ListsApp {
               vm.list.map((task, index) => {
                 return m("li.list-group-item.row", [
                   m("div.col-xs-6.col-sm-6", [
-                    m("a", {style: {}, href: "/#!/todo?id=" + task.description()}, task.description()),
+                    m("a", {
+                        style: {}, 
+                        href: "/todo/" + task.description(), 
+                        oncreate: m.route.link
+                      }, 
+                      task.description()),
                   ]),                  
                   m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
                 ])
@@ -220,5 +225,5 @@ module ListsApp {
 
 m.route(document.body, "/", {
     "/": ListsApp,
-    "/todo": TodoApp,
+    "/todo/:id": TodoApp,
 });
