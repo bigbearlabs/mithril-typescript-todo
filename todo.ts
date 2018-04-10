@@ -18,14 +18,15 @@ import * as prop from 'mithril/stream'
 
 import {Component} from 'mithril'
 
+
 type MithrilProperty<T> = (value?: T) => T
 
 
-namespace TodoCollection {
+namespace TaskList {
 
   let vm: ViewModel
 
-  class Todo {
+  class Task {
     description: MithrilProperty<string>
     done: MithrilProperty<boolean>
     constructor(description: string) {
@@ -36,36 +37,29 @@ namespace TodoCollection {
 
   class ViewModel {
     listId: string
-    todos: Todo[]
-    description: MithrilProperty<string>
+    tasks: Task[]
+    newTaskDescription: MithrilProperty<string>
+
     constructor(listId: string) {
       this.listId = listId
-      this.todos = []
-      this.description = prop("")
+      this.tasks = []
+      this.newTaskDescription = prop("")
 
-      // const updateTo = (fetchedData: [any]) => {
-      //   this.todos = fetchedData.map( (itemObj) => {
-      //     // debugger
-      //     return new Todo(itemObj.description)
-      //   })
-
-      //   this.description = prop("")  // STUB
-      // }
-
-      // storage.get().then( (fetchedData) => {
-      //   // const fetchedData = JSON.parse(documentSnapshot.toString())  // firestore
-      //   updateTo(fetchedData)
-      // })
+      storage.get().then((tasks: Task[]) => {
+        this.tasks = tasks
+        m.redraw()
+      })
     }
+
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
-      if (!vm.description()) { return }
-      vm.todos.push(new Todo(vm.description()))
-      storage.put(vm.todos)
-      vm.description("")  // ?
+      if (!vm.newTaskDescription()) { return }
+      vm.tasks.push(new Task(vm.newTaskDescription()))
+      storage.put(vm.tasks)
+      vm.newTaskDescription("")  // clear the input field.
     }
     remove(i: number) {
-      return () => { vm.todos.splice(i, 1) }
+      return () => { vm.tasks.splice(i, 1) }
     }
   }
 
@@ -82,13 +76,13 @@ namespace TodoCollection {
         m("div.row", [
           m("div.col-md-6.col-md-offset-3", [
             m("div.input-group", [
-              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+              m("input.form-control", {onchange: m.withAttr("value", vm.newTaskDescription), value: vm.newTaskDescription()}),
               m("span.input-group-btn", [
                 m("button.btn.btn-primary", {onclick: vm.add}, "Add")
               ])
             ]),
             m("ul.list-group", [
-              vm.todos.map((task, index) => {
+              vm.tasks.map((task, index) => {
                 return m("li.list-group-item.row", [
                   m("div.col-xs-3.col-sm-3", [
                     m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
@@ -133,11 +127,16 @@ namespace TodoCollection {
 
   // const storage = storage_firebase  // UNFINISHED
   const storage = {
-    get() {
-      return Promise.resolve(JSON.parse(localStorage.getItem(STORAGE_ID) || '[]'))
+    get(): Promise<Task[]> {
+      const itemObjsJson = localStorage.getItem(STORAGE_ID) || '[]'
+      const itemObjs = JSON.parse(itemObjsJson)
+      const tasks = itemObjs.map( (obj: any) => {
+        return new Task(obj.description)
+      })
+      return Promise.resolve(tasks)
     },
-    put(todos: Todo[]) {
-      return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(todos)))
+    put(tasks: Task[]) {
+      return Promise.resolve(localStorage.setItem(STORAGE_ID, JSON.stringify(tasks)))
     }
   }
 
@@ -145,11 +144,11 @@ namespace TodoCollection {
 
 
 
-namespace ListCollection {
+namespace TaskListCollection {
 
   let vm: ViewModel
 
-  class List {
+  class TaskListCollectionItem {
     description: MithrilProperty<string>
     constructor(description: string) {
       this.description = prop(description)
@@ -157,22 +156,22 @@ namespace ListCollection {
   }
 
   class ViewModel {
-    list: List[]
-    description: MithrilProperty<string>
+    lists: TaskListCollectionItem[]
+    newListDescription: MithrilProperty<string>
     constructor() {
-      this.list = []
-      this.description = prop("")
+      this.lists = []
+      this.newListDescription = prop("")
 
     }
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
-      if (!vm.description()) { return }
-      vm.list.push(new List(vm.description()))
+      if (!vm.newListDescription()) { return }
+      vm.lists.push(new TaskListCollectionItem(vm.newListDescription()))
       // storage.put(vm.list)
-      vm.description("")  // ?
+      vm.newListDescription("")
     }
     remove(i: number) {
-      return () => { vm.list.splice(i, 1) }
+      return () => { vm.lists.splice(i, 1) }
     }
   }
 
@@ -182,25 +181,25 @@ namespace ListCollection {
     },
     view() {
       return m("div.container", [
-        m("span", "Todo Lists"),
+        m("span", "Task Lists"),
         m("div.row", [
           m("div.col-md-6.col-md-offset-3", [
             m("div.input-group", [
-              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+              m("input.form-control", {onchange: m.withAttr("value", vm.newListDescription), value: vm.newListDescription()}),
               m("span.input-group-btn", [
                 m("button.btn.btn-primary", {onclick: vm.add}, "Add")
               ])
             ]),
             m("ul.list-group", [
-              vm.list.map((task, index) => {
+              vm.lists.map((list, index) => {
                 return m("li.list-group-item.row", [
                   m("div.col-xs-6.col-sm-6", [
                     m("a", {
                         style: {},
-                        href: "/todo/" + task.description(),
+                        href: "/tasklist/" + list.description(),
                         oncreate: m.route.link
                       },
-                      task.description()),
+                      list.description()),
                   ]),
                   m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
                 ])
@@ -216,7 +215,7 @@ namespace ListCollection {
 
 
 
-m.route(document.body, "/todo", {
-    "/todo": ListCollection.component,
-    "/todo/:id": TodoCollection.component,
+m.route(document.body, "/tasklist", {
+    "/tasklist": TaskListCollection.component,
+    "/tasklist/:id": TaskList.component,
 })
