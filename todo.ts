@@ -24,8 +24,7 @@ interface MithrilProperty<T> {
 }
 
 
-// TodoCollection
-module TodoApp {
+module TodoCollection {
 
   var vm: ViewModel
 
@@ -78,32 +77,32 @@ module TodoApp {
     vm = new ViewModel(listId)
   }
   export function view(vnode) {
-      return m("div.container", [
+    return m("div.container", [
       m("span", "List " + vnode.attrs.id),
-        m("div.row", [
-          m("div.col-md-6.col-md-offset-3", [
-            m("div.input-group", [
-              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
-              m("span.input-group-btn", [
-                m("button.btn.btn-primary", {onclick: vm.add}, "Add")
-              ])
-            ]),
-            m("ul.list-group", [
-              vm.todos.map((task, index) => {
-                return m("li.list-group-item.row", [
-                  m("div.col-xs-3.col-sm-3", [
-                    m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
-                  ]),
-                  m("div.col-xs-6.col-sm-6", [
-                    m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
-                  ]),                  
-                  m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
-                ])
-              })
+      m("div.row", [
+        m("div.col-md-6.col-md-offset-3", [
+          m("div.input-group", [
+            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+            m("span.input-group-btn", [
+              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
             ])
+          ]),
+          m("ul.list-group", [
+            vm.todos.map((task, index) => {
+              return m("li.list-group-item.row", [
+                m("div.col-xs-3.col-sm-3", [
+                  m("input[type=checkbox]", {onclick: m.withAttr("checked", task.done), checked: task.done()})
+                ]),
+                m("div.col-xs-6.col-sm-6", [
+                  m("span", {style: {textDecoration: task.done() ? "line-through" : "none"}}, task.description()),
+                ]),                  
+                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+              ])
+            })
           ])
         ])
       ])
+    ])
   }
 
 
@@ -146,12 +145,11 @@ module TodoApp {
 
 
 
-// ListCollection
-module ListsApp {
+module ListCollection {
 
   var vm: ViewModel
 
-  class Todo {
+  class List {
     description: MithrilProperty<string>
     constructor(description: string) {
       this.description = prop(description)
@@ -159,7 +157,7 @@ module ListsApp {
   }
 
   class ViewModel {
-    list: Array<Todo>
+    list: Array<List>
     description: MithrilProperty<string>
     constructor() {
       this.list = []
@@ -169,7 +167,7 @@ module ListsApp {
     add() {
       // This is an unfortunate thing, but we have to use vm instead of this
       if (!vm.description()) return
-      vm.list.push(new Todo(vm.description()))
+      vm.list.push(new List(vm.description()))
       // storage.put(vm.list)
       vm.description("")  // ?
     }
@@ -182,34 +180,34 @@ module ListsApp {
     vm = new ViewModel()
   }
   export function view() {
-      return m("div.container", [
-        m("span", "Todo Lists"),
-        m("div.row", [
-          m("div.col-md-6.col-md-offset-3", [
-            m("div.input-group", [
-              m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
-              m("span.input-group-btn", [
-                m("button.btn.btn-primary", {onclick: vm.add}, "Add")
-              ])
-            ]),
-            m("ul.list-group", [
-              vm.list.map((task, index) => {
-                return m("li.list-group-item.row", [
-                  m("div.col-xs-6.col-sm-6", [
-                    m("a", {
-                        style: {}, 
-                        href: "/todo/" + task.description(), 
-                        oncreate: m.route.link
-                      }, 
-                      task.description()),
-                  ]),                  
-                  m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
-                ])
-              })
+    return m("div.container", [
+      m("span", "Todo Lists"),
+      m("div.row", [
+        m("div.col-md-6.col-md-offset-3", [
+          m("div.input-group", [
+            m("input.form-control", {onchange: m.withAttr("value", vm.description), value: vm.description()}),
+            m("span.input-group-btn", [
+              m("button.btn.btn-primary", {onclick: vm.add}, "Add")
             ])
+          ]),
+          m("ul.list-group", [
+            vm.list.map((task, index) => {
+              return m("li.list-group-item.row", [
+                m("div.col-xs-6.col-sm-6", [
+                  m("a", {
+                      style: {}, 
+                      href: "/todo/" + task.description(), 
+                      oncreate: m.route.link
+                    }, 
+                    task.description()),
+                ]),                  
+                m("button.btn.btn-danger.pull-right", {onclick: vm.remove(index)}, "Remove")
+              ])
+            })
           ])
         ])
       ])
+    ])
   }
 
 }
@@ -218,12 +216,12 @@ module ListsApp {
 
 //initialize the application
 // if (document.location.href.indexOf("todo") > -1) {
-//   m.module(document.body, TodoApp)  
+//   m.module(document.body, TodoCollection)  
 // } else if (document.location.href.indexOf("lists") > -1) {
-//   m.module(document.body, ListsApp)
+//   m.module(document.body, ListCollection)
 // }
 
-m.route(document.body, "/", {
-    "/": ListsApp,
-    "/todo/:id": TodoApp,
+m.route(document.body, "/todo", {
+    "/todo": ListCollection,
+    "/todo/:id": TodoCollection,
 });
