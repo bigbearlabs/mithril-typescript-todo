@@ -77,9 +77,9 @@ module TodoApp {
     const listId = (new URL(document.location.href)).searchParams.get("id")
     vm = new ViewModel(listId)
   }
-  export function view() {
+  export function view(vnode) {
       return m("div.container", [
-        m("span", "Todo Items For List " + vm.listId),
+      m("span", "List " + vnode.attrs.id),
         m("div.row", [
           m("div.col-md-6.col-md-offset-3", [
             m("div.input-group", [
